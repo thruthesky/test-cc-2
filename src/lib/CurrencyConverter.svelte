@@ -1,21 +1,35 @@
 <script>
-  const fetchCurrency = (async () => {
+  const fetchCurrency = async () => {
     const response = await fetch(
       "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies.json"
     );
     const data = await response.json();
     return data;
-  })();
+  };
 
   let amountFrom = $state(0);
   let amountTo = $state();
-  let selectedCurrencyFrom = $state();
-  let selectedCurrencyTo = $state();
+  let selectedCurrencyFrom = $state("php");
+  let selectedCurrencyTo = $state("usd");
+  let convertionRate = $state();
+
+  const fetchCurrencyRate = async (selectedCurrencyFrom) => {
+    const response = await fetch(
+      `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/${selectedCurrencyFrom}.json`
+    );
+    const data = await response.json();
+    return data[selectedCurrencyFrom];
+  };
+  $effect.pre(() => {
+    if (selectedCurrencyFrom !== undefined) {
+      convertionRate = fetchCurrencyRate(selectedCurrencyFrom);
+    }
+  });
 </script>
 
 <main>
   From
-  {#await fetchCurrency then data}
+  {#await fetchCurrency() then data}
     <select bind:value={selectedCurrencyFrom} id="selectedCurrencyFrom">
       {#each Object.entries(data) as [code, name]}
         <option value={code}>{name} ({code})</option>
@@ -26,8 +40,7 @@
   {/await}
   <input type="number" id="amountFrom" min="0" bind:value={amountFrom} />
   To
-
-  {#await fetchCurrency then data}
+  {#await fetchCurrency() then data}
     <select bind:value={selectedCurrencyTo} id="selectedCurrencyTo">
       {#each Object.entries(data) as [code, name]}
         <option value={code}>{name} ({code})</option>
