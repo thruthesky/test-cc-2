@@ -43,7 +43,11 @@
       onchange={handleChange}
     >
       {#each Object.entries(data) as [code, name]}
-        <option value={code}>{name} ({code})</option>
+        <option value={code}
+          >{name != ""
+            ? `${name} (${code.toLocaleUpperCase()})`
+            : code.toUpperCase()}</option
+        >
       {/each}
     </select>
   {:catch error}
@@ -64,7 +68,11 @@
       onchange={handleChange}
     >
       {#each Object.entries(data) as [code, name]}
-        <option value={code}>{name} ({code})</option>
+        <option value={code}
+          >{name != ""
+            ? `${name} (${code.toLocaleUpperCase()})`
+            : code.toUpperCase()}</option
+        >
       {/each}
     </select>
   {:catch error}
