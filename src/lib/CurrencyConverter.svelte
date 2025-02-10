@@ -59,6 +59,7 @@
     min="0"
     bind:value={amountFrom}
     oninput={handleChange}
+    placeholder="Enter an amount"
   />
   To
   {#await fetchCurrency() then data}
