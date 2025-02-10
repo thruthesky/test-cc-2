@@ -6,8 +6,8 @@
     const data = await response.json();
     return data;
   };
-
-  let amountFrom = $state(0);
+  let rate = $state();
+  let amountFrom = $state();
   let amountTo = $state();
   let selectedCurrencyFrom = $state("php");
   let selectedCurrencyTo = $state("usd");
@@ -20,17 +20,27 @@
     const data = await response.json();
     return data[selectedCurrencyFrom];
   };
-  $effect.pre(() => {
+  $effect(() => {
     if (selectedCurrencyFrom !== undefined) {
       convertionRate = fetchCurrencyRate(selectedCurrencyFrom);
     }
   });
+
+  const handleChange = async () => {
+    const reponse = await convertionRate;
+    rate = reponse[selectedCurrencyTo];
+    amountTo = amountFrom * rate;
+  };
 </script>
 
 <main>
   From
   {#await fetchCurrency() then data}
-    <select bind:value={selectedCurrencyFrom} id="selectedCurrencyFrom">
+    <select
+      bind:value={selectedCurrencyFrom}
+      id="selectedCurrencyFrom"
+      onchange={handleChange}
+    >
       {#each Object.entries(data) as [code, name]}
         <option value={code}>{name} ({code})</option>
       {/each}
@@ -38,10 +48,20 @@
   {:catch error}
     <p>An error occurred!</p>
   {/await}
-  <input type="number" id="amountFrom" min="0" bind:value={amountFrom} />
+  <input
+    type="number"
+    id="amountFrom"
+    min="0"
+    bind:value={amountFrom}
+    oninput={handleChange}
+  />
   To
   {#await fetchCurrency() then data}
-    <select bind:value={selectedCurrencyTo} id="selectedCurrencyTo">
+    <select
+      bind:value={selectedCurrencyTo}
+      id="selectedCurrencyTo"
+      onchange={handleChange}
+    >
       {#each Object.entries(data) as [code, name]}
         <option value={code}>{name} ({code})</option>
       {/each}
@@ -49,6 +69,5 @@
   {:catch error}
     <p>An error occurred!</p>
   {/await}
-  <button> Convert </button>
   <input type="number" id="amountTo" min="0" bind:value={amountTo} readonly />
 </main>
